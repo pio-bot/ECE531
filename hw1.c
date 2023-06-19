@@ -56,24 +56,38 @@ int main(int argc, char *argv[]) {
     curl = curl_easy_init();
     if (curl) {
         // Set the URL
+	printf("Setting the URL to %s\n", url);
         curl_easy_setopt(curl, CURLOPT_URL, url);
         // Set request type
 	if (is_get) {
+	    printf("Sending GET\n");
 	    curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
 	} else if (is_post) {
+	    printf("Sending POST %s\n", data);
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
 	    if (data != NULL) {
 	        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+	    } else {
+	    	printf("Data not valid\n");
+		return 1;
 	    }
         } else if (is_put) {
             curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
+	    printf("Sending PUT %s\n", data);
             if (data != NULL) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+	    } else {
+	       printf("Data not valid\n");
+	       return 1;
 	    }
 	} else if (is_delete){
+	    printf("Sending DELETE %s\n", data);
 	    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 	    if (data != NULL){
 	        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+	    } else {
+	       printf("Data not valid\n");
+	       return 1;
 	    }
 	} else {
             printf("No valid request type specified\n");
