@@ -1,3 +1,10 @@
+/*
+ * To compile for x86: gcc -o hw1 hw1.c -lcurl 
+ * To compile for arm: /<buildroot directory>/output/host/usr/bin/arm-linux-gcc -o hw1 hw1.c -lcurl -uClibc -lc
+ * OR make -f makefile-arm  NOTE: may need to update path to buildroot in makefile
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
