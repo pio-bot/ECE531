@@ -12,19 +12,24 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <signal.h>
-
+#include <time.h>
+#include <curl/curl.h>
 
 #define OK         0
 #define ERR_FORK   -1
 #define ERR_SETSID -2
 #define ERR_CHDIR  -3
 
+// Default config
+int time1 = 8, time2 = 12, time3 = 20;
+int temp1 = 69, temp2 = 71, temp3 = 64;
+
 void _signal_handler(const int signal){
     switch(signal){
         case SIGHUP:
           break;
         case SIGTERM:
-          syslog(LOG_INFO, "Received SIFTERM, exiting");
+          syslog(LOG_INFO, "Received SIGTERM, exiting");
           closelog();
           exit(OK);
           break;
@@ -33,37 +38,107 @@ void _signal_handler(const int signal){
     }
 }
 
-
-void _do_work(void){
-    FILE *temperatureFile;
-    FILE *heaterFile;
-
-    int setpoint;
-
+void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Open the files
     temperatureFile = fopen("/var/log/temperature", "r");
     heaterFile = fopen("/var/log/heater", "w");
     if (temperatureFile == NULL){
     	syslog(LOG_INFO, "Error in opening temperature file\n");
-	return 0;
+	    return 0;
     }
     if (heaterFile == NULL){
         syslog(LOG_INFO, "ERROR in opening heater file\n");
         return 0;
     }
-    // Every one second read from the temperature file and turn on heater based on setpoint
+    
+    // Read in the current temp and time
     char buffer[10];
     fgets(buffer, 10, temperatureFile);
-
     int currentTemp = atoi(buffer);
-    if (currentTemp < setpoint){
-        // Turn the heater on 
-	fprintf(heaterFile, 
+    int targetTemp;
+    time_t currentTime = time(NULL);
+    struct tm* ptr = localtime(&currentTime);
+    int currentHour = ptr->tm_hour;
+
+    // Set the target temperature
+    if (currentHour < time1){
+        targetTemp = temp1;
+    } else if (currentHour < time2){
+        targetTemp = temp2;
+    } else if (currentHour < time3){
+        targetTemp = temp3;
+    } else {
+        targetTemp = temp1;
     }
 
+    // Turn the heater on or off
+    if (currentTemp < targetTemp){   
+        // Turn the heater on 
+        char *data;
+        sprintf(&data, "on : %d\n", (int)time(NULL));
+        url_easy_setopt(curl, CURLOPT_POST, 1L);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+	    fprintf(heaterFile, "on : %d\n", (int)time(NULL));
+    } else {
+        //turn the heater off
+        char *data;
+        sprintf(&data, "off : %d\n", (int)time(NULL));
+        url_easy_setopt(curl, CURLOPT_POST, 1L);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+        fprintf(heaterFile, "off : %d\n", (int)time(NULL));
+    }
+    return;
 }
 
-int main(void){
+void setup_curl(void){
+    // Initialize libcurl
+    CURL *curl;
+    CURLcode res;
+    char *url = "http://3.21.236.78:80";
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
+
+    if (curl) {
+        // Set the URL
+	    printf("Setting the URL to %s\n", url);
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+    }
+}
+
+void process_http(void){
+    
+}
+
+void _do_work(void){
+    FILE *temperatureFile;
+    FILE *heaterFile;
+    int iteration = 0;
+    setup_curl();
+    while(1){
+        do_temp_stuff(temperatureFile, heaterFile);
+        iteration++;
+        sleep(1);
+    }
+}
+
+int main(int argc, char *argv[]){
+
+    // Parse input
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--config_file") == 0 || strcmp(argv[i], "-c") == 0) {
+	        is_post = 1;
+	    } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+	        printf("Usage: %s [options]\n", argv[0]);
+	        printf("Options:\n");
+	        printf("  -c, --config_file    The config file containing the setpoint temperatures\n");
+	        printf("  -h, --help           Show help\n");
+	        return 0;
+	    } else {
+	        // Its the data
+	        data = argv[i];
+	    }
+    }
+
     // Open syslog
     openlog("FinalProjectDaemon", LOG_PID | LOG_NDELAY | LOG_NOWAIT, LOG_DAEMON);
     syslog(LOG_INFO, "starting fp_d");
@@ -74,7 +149,7 @@ int main(void){
     // Check for error
     if ( pid < 0){
         syslog(LOG_ERR, "Error in FORK");
-	return ERR_FORK;
+	    return ERR_FORK;
     }
     if (pid > 0){
         return OK;
@@ -82,7 +157,7 @@ int main(void){
 
     if (setsid() < -1){
         syslog(LOG_ERR, "Error in setsid");
-	return ERR_SETSID;
+	    return ERR_SETSID;
     }
 
     // Close file descriptors
