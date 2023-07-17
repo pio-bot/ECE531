@@ -129,12 +129,12 @@ int main(int argc, char *argv[]){
     // Parse input
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--config_file") == 0 || strcmp(argv[i], "-c") == 0) {
-	        time1 = argv[i + 1];
-            temp1 = argv[i + 2];
-            time2 = argv[i + 3];
-            temp2 = argv[i + 4];
-            time3 = argv[i + 5];
-            temp3 = argv[i + 6];
+	        time1 = atoi(argv[i + 1]);
+            temp1 = atoi(argv[i + 2]);
+            time2 = atoi(argv[i + 3]);
+            temp2 = atoi(argv[i + 4]);
+            time3 = atoi(argv[i + 5]);
+            temp3 = atoi(argv[i + 6]);
 	    } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
 	        printf("Usage: %s [options]\n", argv[0]);
 	        printf("Options:\n");
