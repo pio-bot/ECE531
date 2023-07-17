@@ -24,6 +24,11 @@
 int time1 = 8, time2 = 12, time3 = 20;
 int temp1 = 69, temp2 = 71, temp3 = 64;
 
+// Global curl variables
+CURL *curl;
+CURLcode res;
+char *url = "http://3.21.236.78:80";
+
 void _signal_handler(const int signal){
     switch(signal){
         case SIGHUP:
@@ -44,11 +49,11 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     heaterFile = fopen("/var/log/heater", "w");
     if (temperatureFile == NULL){
     	syslog(LOG_INFO, "Error in opening temperature file\n");
-	    return 0;
+	    return;
     }
     if (heaterFile == NULL){
         syslog(LOG_INFO, "ERROR in opening heater file\n");
-        return 0;
+        return;
     }
     
     // Read in the current temp and time
@@ -75,14 +80,14 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     if (currentTemp < targetTemp){   
         // Turn the heater on 
         char *data;
-        sprintf(&data, "on : %d\n", (int)time(NULL));
+        sprintf(data, "on : %d\n", (int)time(NULL));
         url_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
 	    fprintf(heaterFile, "on : %d\n", (int)time(NULL));
     } else {
         //turn the heater off
         char *data;
-        sprintf(&data, "off : %d\n", (int)time(NULL));
+        sprintf(data, "off : %d\n", (int)time(NULL));
         url_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
         fprintf(heaterFile, "off : %d\n", (int)time(NULL));
@@ -92,9 +97,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
 
 void setup_curl(void){
     // Initialize libcurl
-    CURL *curl;
-    CURLcode res;
-    char *url = "http://3.21.236.78:80";
+    
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
 
@@ -126,16 +129,21 @@ int main(int argc, char *argv[]){
     // Parse input
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--config_file") == 0 || strcmp(argv[i], "-c") == 0) {
-	        is_post = 1;
+	        time1 = argv[i + 1];
+            temp1 = argv[i + 2];
+            time2 = argv[i + 3];
+            temp2 = argv[i + 4];
+            time3 = argv[i + 5];
+            temp3 = argv[i + 6];
 	    } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
 	        printf("Usage: %s [options]\n", argv[0]);
 	        printf("Options:\n");
 	        printf("  -c, --config_file    The config file containing the setpoint temperatures\n");
+            printf("                       The config file is entered as time1 temp1 time2 temp2 time3 temp3\n");
 	        printf("  -h, --help           Show help\n");
 	        return 0;
 	    } else {
-	        // Its the data
-	        data = argv[i];
+	        // else doesnt matter
 	    }
     }
 
