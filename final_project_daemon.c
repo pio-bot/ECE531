@@ -82,14 +82,14 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         // Turn the heater on 
         char *data;
         sprintf(data, "on : %d\n", (int)time(NULL));
-        url_easy_setopt(curl, CURLOPT_POST, 1L);
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
 	    fprintf(heaterFile, "on : %d\n", (int)time(NULL));
     } else {
         //turn the heater off
         char *data;
         sprintf(data, "off : %d\n", (int)time(NULL));
-        url_easy_setopt(curl, CURLOPT_POST, 1L);
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
         fprintf(heaterFile, "off : %d\n", (int)time(NULL));
     }
