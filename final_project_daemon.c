@@ -14,6 +14,7 @@
 #include <signal.h>
 #include <time.h>
 #include <curl/curl.h>
+#include <string.h>
 
 #define OK         0
 #define ERR_FORK   -1
