@@ -61,7 +61,6 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Read in the current temp and time
     char buffer[10];
     fgets(buffer, 10, temperatureFile);
-    puts(buffer);
     int currentTemp = atoi(buffer);
     int targetTemp;
     time_t currentTime = time(NULL);
@@ -87,6 +86,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
 	    fputs(data, heaterFile);
+        syslog(LOG_INFO, "Turning heater on\n");
     } else {
         //turn the heater off
         char *data;
@@ -94,10 +94,16 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
         fputs(data, heaterFile);
+        syslog(LOG_INFO, "Turning heater off\n");
+
     }
+
+    syslog(LOG_INFO, "Closing files\n");
 
     fclose(temperatureFile);
     fclose(heaterFile);
+
+    syslog(LOG_INFO, "Returning to main\n");
 
     return;
 }
@@ -122,10 +128,14 @@ void _do_work(void){
     int iteration = 0;
     setup_curl();
     while(1){
+        syslog(LOG_INFO, "At start of main\n");
+
         do_temp_stuff(temperatureFile, heaterFile);
         syslog(LOG_INFO, "iteration: %d", iteration);
         iteration++;
         sleep(1);
+        syslog(LOG_INFO, "At end of main\n");
+
     }
 }
 
@@ -194,6 +204,9 @@ int main(int argc, char *argv[]){
     
     // Call the actual stuff you want to do
     _do_work();
+
+    syslog(LOG_INFO, "Ending program\n");
+
 
     return 0;
 }
