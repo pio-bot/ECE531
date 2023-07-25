@@ -1,6 +1,6 @@
 /*
- * To compile: gcc -o daemon_hw daemon_hw.c
- * To run: ./daemon_hw
+ * To compile: gcc -o final_project_daemon final_project_daemon.c
+ * To run: ./final_project_daemon
  * To see output: tail -f /var/log/syslog
  */
 
@@ -46,7 +46,7 @@ void _signal_handler(const int signal){
 
 void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Open the files
-    temperatureFile = fopen("/var/log/temperature", "r");
+    temperatureFile = fopen("/var/log/temp", "r");
     heaterFile = fopen("/var/log/heater", "w");
     if (temperatureFile == NULL){
     	syslog(LOG_INFO, "Error in opening temperature file\n");
@@ -60,6 +60,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Read in the current temp and time
     char buffer[10];
     fgets(buffer, 10, temperatureFile);
+    puts(buffer);
     int currentTemp = atoi(buffer);
     int targetTemp;
     time_t currentTime = time(NULL);
@@ -84,15 +85,19 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         sprintf(data, "on : %d\n", (int)time(NULL));
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-	    fprintf(heaterFile, "on : %d\n", (int)time(NULL));
+	    fputs(data, heaterFile);
     } else {
         //turn the heater off
         char *data;
         sprintf(data, "off : %d\n", (int)time(NULL));
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-        fprintf(heaterFile, "off : %d\n", (int)time(NULL));
+        fputs(data, heaterFile);
     }
+
+    close(temperatureFile);
+    close(heaterFile);
+
     return;
 }
 
@@ -109,9 +114,6 @@ void setup_curl(void){
     }
 }
 
-void process_http(void){
-    
-}
 
 void _do_work(void){
     FILE *temperatureFile;
