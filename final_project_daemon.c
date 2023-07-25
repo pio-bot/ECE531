@@ -46,8 +46,9 @@ void _signal_handler(const int signal){
 
 void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Open the files
-    temperatureFile = fopen("/var/log/temp", "r");
-    heaterFile = fopen("/var/log/heater", "w");
+    syslog(LOG_INFO, "Opening files\n");
+    temperatureFile = fopen("/var/log/temp", "rb");
+    heaterFile = fopen("/var/log/heater", "wb");
     if (temperatureFile == NULL){
     	syslog(LOG_INFO, "Error in opening temperature file\n");
 	    return;
@@ -122,6 +123,7 @@ void _do_work(void){
     setup_curl();
     while(1){
         do_temp_stuff(temperatureFile, heaterFile);
+        syslog(LOG_INFO, "iteration: %d", iteration);
         iteration++;
         sleep(1);
     }
