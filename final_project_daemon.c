@@ -95,8 +95,8 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         fputs(data, heaterFile);
     }
 
-    close(temperatureFile);
-    close(heaterFile);
+    fclose(temperatureFile);
+    fclose(heaterFile);
 
     return;
 }
