@@ -48,7 +48,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Open the files
     syslog(LOG_INFO, "Opening files\n");
     temperatureFile = fopen("/tmp/temp", "rb");
-    heaterFile = fopen("/tmp/status", "wb");
+    heaterFile = fopen("/tmp/heater", "wb");
     if (temperatureFile == NULL){
     	syslog(LOG_INFO, "Error in opening temperature file\n");
 	    return;
