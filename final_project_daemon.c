@@ -80,7 +80,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Turn the heater on or off
     if (currentTemp < targetTemp){   
         // Turn the heater on 
-        syslog(LOG_INFO, "Turning heater on\n");
+        syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater on\n", currentTemp, targetTemp);
         char *data;
         sprintf(data, "ON : %d\n", (int)time(NULL));
         //curl_easy_setopt(curl, CURLOPT_POST, 1L);
@@ -89,7 +89,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         
     } else {
         //turn the heater off
-        syslog(LOG_INFO, "Turning heater off\n");
+        syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater off\n", currentTemp, targetTemp);
         char *data;
         sprintf(data, "OFF : %d\n", (int)time(NULL));
         //curl_easy_setopt(curl, CURLOPT_POST, 1L);
