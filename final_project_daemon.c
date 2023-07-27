@@ -23,7 +23,7 @@
 
 // Default config
 int time1 = 8, time2 = 12, time3 = 20;
-int temp1 = 69, temp2 = 71, temp3 = 64;
+int temp1 = 80, temp2 = 85, temp3 = 78;
 
 // Global curl variables
 CURL *curl;
