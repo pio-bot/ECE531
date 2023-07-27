@@ -86,19 +86,20 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         syslog(LOG_INFO, "Turning heater on\n");
         char *data;
         sprintf(data, "ON : %d\n", (int)time(NULL));
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+        //curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        //curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
 	    fputs(data, heaterFile);
+        syslog(LOG_INFO, "finished Turning heater on\n");
         
     } else {
         //turn the heater off
         syslog(LOG_INFO, "Turning heater off\n");
         char *data;
         sprintf(data, "OFF : %d\n", (int)time(NULL));
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
+        //curl_easy_setopt(curl, CURLOPT_POST, 1L);
+        //curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
         fputs(data, heaterFile);
-        
+        syslog(LOG_INFO, "Finished turning heater off\n");
 
     }
 
