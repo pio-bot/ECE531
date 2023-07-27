@@ -129,74 +129,10 @@ void _do_work(void){
     setup_curl();
     syslog(LOG_INFO, "Entering do work\n");
     while(1){
-        syslog(LOG_INFO, "At start of main\n");
+        
 
-        //do_temp_stuff(temperatureFile, heaterFile);
-        // Open the files
-    syslog(LOG_INFO, "Opening files\n");
-    temperatureFile = fopen("/tmp/temp", "rb");
-    heaterFile = fopen("/tmp/status", "wb");
-    if (temperatureFile == NULL){
-    	syslog(LOG_INFO, "Error in opening temperature file\n");
-	    return;
-    }
-    if (heaterFile == NULL){
-        syslog(LOG_INFO, "ERROR in opening heater file\n");
-        return;
-    }
-    
-    // Read in the current temp and time
-    char buffer[10];
-    fgets(buffer, 10, temperatureFile);
-    int currentTemp = atoi(buffer);
-    int targetTemp;
-    time_t currentTime = time(NULL);
-    struct tm* ptr = localtime(&currentTime);
-    int currentHour = ptr->tm_hour;
-
-    // Set the target temperature
-    if (currentHour < time1){
-        targetTemp = temp1;
-    } else if (currentHour < time2){
-        targetTemp = temp2;
-    } else if (currentHour < time3){
-        targetTemp = temp3;
-    } else {
-        targetTemp = temp1;
-    }
-
-    // Turn the heater on or off
-    if (currentTemp < targetTemp){   
-        // Turn the heater on 
-        char *data;
-        sprintf(data, "on : %d\n", (int)time(NULL));
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-	    fputs(data, heaterFile);
-        syslog(LOG_INFO, "Turning heater on\n");
-    } else {
-        //turn the heater off
-        char *data;
-        sprintf(data, "off : %d\n", (int)time(NULL));
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-        fputs(data, heaterFile);
-        syslog(LOG_INFO, "Turning heater off\n");
-
-    }
-
-    syslog(LOG_INFO, "Closing files\n");
-
-    fclose(temperatureFile);
-    fclose(heaterFile);
-
-    syslog(LOG_INFO, "Returning to main\n");
-
-        syslog(LOG_INFO, "iteration: %d", iteration);
-        iteration++;
-        sleep(1);
-        syslog(LOG_INFO, "At end of main\n");
-
+        do_temp_stuff(temperatureFile, heaterFile);
+        
     }
     syslog(LOG_INFO, "Leaving do work\n");
     return;
