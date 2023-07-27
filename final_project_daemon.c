@@ -62,7 +62,6 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     char buffer[10];
     fgets(buffer, 10, temperatureFile);
     int currentTemp = atoi(buffer);
-    syslog(LOG_INFO, "Temp read from file: %d\n", currentTemp);
     int targetTemp;
     time_t currentTime = time(NULL);
     struct tm* ptr = localtime(&currentTime);
@@ -126,9 +125,10 @@ void _do_work(void){
     int iteration = 0;
     setup_curl();
     while(1){
-
+        syslog(LOG_INFO, "iteration: %d\n", iteration);
         do_temp_stuff(temperatureFile, heaterFile);
-        sleep(2);
+        sleep(5);
+        iteration++;
     }
     return;
 }
