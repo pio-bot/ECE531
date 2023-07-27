@@ -30,6 +30,9 @@ CURL *curl;
 CURLcode res;
 char *url = "http://3.21.236.78:80";
 
+char *dataOn;
+char *dataOff;
+
 void _signal_handler(const int signal){
     switch(signal){
         case SIGHUP:
@@ -81,20 +84,17 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     if (currentTemp < targetTemp){   
         // Turn the heater on 
         syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater on\n", currentTemp, targetTemp);
-        char *data;
-        sprintf(data, "ON : %d\n", (int)time(NULL));
-        //curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        //curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-	    fputs(data, heaterFile);
         
+        sprintf(dataOn, "ON : %d\n", (int)time(NULL));
+	    fputs(dataOn, heaterFile);
+        syslog(LOG_INFO, "Leaving turn on")
     } else {
         //turn the heater off
         syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater off\n", currentTemp, targetTemp);
-        char *data;
-        sprintf(data, "OFF : %d\n", (int)time(NULL));
+        sprintf(dataOff, "OFF : %d\n", (int)time(NULL));
         //curl_easy_setopt(curl, CURLOPT_POST, 1L);
         //curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-        fputs(data, heaterFile);
+        fputs(dataOff, heaterFile);
 
     }
 
