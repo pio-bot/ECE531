@@ -82,7 +82,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     if (currentTemp < targetTemp){   
         // Turn the heater on 
         char *data;
-        sprintf(data, "on : %d\n", (int)time(NULL));
+        sprintf(data, "ON : %d\n", (int)time(NULL));
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
 	    fputs(data, heaterFile);
@@ -90,7 +90,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     } else {
         //turn the heater off
         char *data;
-        sprintf(data, "off : %d\n", (int)time(NULL));
+        sprintf(data, "OFF : %d\n", (int)time(NULL));
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
         fputs(data, heaterFile);
