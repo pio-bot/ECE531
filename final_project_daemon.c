@@ -46,7 +46,6 @@ void _signal_handler(const int signal){
 
 void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Open the files
-    syslog(LOG_INFO, "Opening files\n");
     temperatureFile = fopen("/tmp/temp", "rb");
     heaterFile = fopen("/tmp/status", "wb");
 
@@ -68,7 +67,6 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     time_t currentTime = time(NULL);
     struct tm* ptr = localtime(&currentTime);
     int currentHour = ptr->tm_hour;
-    syslog(LOG_INFO, "Got through setting time\n");
     // Set the target temperature
     if (currentHour < time1){
         targetTemp = temp1;
@@ -89,7 +87,6 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         //curl_easy_setopt(curl, CURLOPT_POST, 1L);
         //curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
 	    fputs(data, heaterFile);
-        syslog(LOG_INFO, "finished Turning heater on\n");
         
     } else {
         //turn the heater off
@@ -99,11 +96,8 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         //curl_easy_setopt(curl, CURLOPT_POST, 1L);
         //curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
         fputs(data, heaterFile);
-        syslog(LOG_INFO, "Finished turning heater off\n");
 
     }
-
-    syslog(LOG_INFO, "Closing files\n");
 
     fclose(temperatureFile);
     fclose(heaterFile);
@@ -121,7 +115,6 @@ void setup_curl(void){
 
     if (curl) {
         // Set the URL
-	    printf("Setting the URL to %s\n", url);
         curl_easy_setopt(curl, CURLOPT_URL, url);
     }
 }
@@ -132,14 +125,11 @@ void _do_work(void){
     FILE *heaterFile;
     int iteration = 0;
     setup_curl();
-    syslog(LOG_INFO, "Entering do work\n");
     while(1){
-        
 
         do_temp_stuff(temperatureFile, heaterFile);
-        
+        sleep(2);
     }
-    syslog(LOG_INFO, "Leaving do work\n");
     return;
 }
 
