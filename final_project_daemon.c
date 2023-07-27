@@ -48,7 +48,8 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Open the files
     syslog(LOG_INFO, "Opening files\n");
     temperatureFile = fopen("/tmp/temp", "rb");
-    heaterFile = fopen("/tmp/heater", "wb");
+    heaterFile = fopen("/tmp/status", "wb");
+
     if (temperatureFile == NULL){
     	syslog(LOG_INFO, "Error in opening temperature file\n");
 	    return;
@@ -62,11 +63,12 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     char buffer[10];
     fgets(buffer, 10, temperatureFile);
     int currentTemp = atoi(buffer);
+    syslog(LOG_INFO, "Temp read from file: %d\n", currentTemp);
     int targetTemp;
     time_t currentTime = time(NULL);
     struct tm* ptr = localtime(&currentTime);
     int currentHour = ptr->tm_hour;
-
+    syslog(LOG_INFO, "Got through setting time\n");
     // Set the target temperature
     if (currentHour < time1){
         targetTemp = temp1;
@@ -81,20 +83,22 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     // Turn the heater on or off
     if (currentTemp < targetTemp){   
         // Turn the heater on 
+        syslog(LOG_INFO, "Turning heater on\n");
         char *data;
         sprintf(data, "ON : %d\n", (int)time(NULL));
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
 	    fputs(data, heaterFile);
-        syslog(LOG_INFO, "Turning heater on\n");
+        
     } else {
         //turn the heater off
+        syslog(LOG_INFO, "Turning heater off\n");
         char *data;
         sprintf(data, "OFF : %d\n", (int)time(NULL));
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
         fputs(data, heaterFile);
-        syslog(LOG_INFO, "Turning heater off\n");
+        
 
     }
 
