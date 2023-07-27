@@ -87,7 +87,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         
         sprintf(dataOn, "ON : %d\n", (int)time(NULL));
 	    fputs(dataOn, heaterFile);
-        syslog(LOG_INFO, "Leaving turn on")
+        syslog(LOG_INFO, "Leaving turn on");
     } else {
         //turn the heater off
         syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater off\n", currentTemp, targetTemp);
