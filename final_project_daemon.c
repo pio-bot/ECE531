@@ -138,12 +138,19 @@ int main(int argc, char *argv[]){
             time1 = atoi(argv[i + 4]);
             time2 = atoi(argv[i + 5]);
             time3 = atoi(argv[i + 6]);
-            char setpointData[100];
-            snprintf(setpointData, 100,"{\"temp1\":\"%d\", \"temp2\":\"%d\",\"temp3\":\"%d\", \"time1\":\"%d\", \"time2\":\"%d\",\"time\":\"%d\"}", temp1, temp2, temp3, time1, time2, time3);
+            char setpointData[110];
+            snprintf(setpointData, 110,"{\"temp1\":\"%d\", \"temp2\":\"%d\",\"temp3\":\"%d\", \"time1\":\"%d\", \"time2\":\"%d\",\"time3\":\"%d\"}", temp1, temp2, temp3, time1, time2, time3);
             setup_curl();
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, setpointData);
-
+            //Send the request
+	        res = curl_easy_perform(curl);
+            if (res != CURLE_OK){
+                
+                return 1;
+            } 
+        // cleanup
+	curl_easy_cleanup(curl);
 	    } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
 	        printf("Usage: %s [options]\n", argv[0]);
 	        printf("Options:\n");
