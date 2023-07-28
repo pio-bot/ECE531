@@ -84,8 +84,7 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
     if (currentTemp < targetTemp){   
         // Turn the heater on 
         syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater on\n", currentTemp, targetTemp);
-        
-        sprintf(dataOn, 20,"ON : %d", (int)time(NULL));
+        snprintf(dataOn, 20,"ON : %d", (int)time(NULL));
 	    fputs(dataOn, heaterFile);
         syslog(LOG_INFO, "Leaving turn on");
     } else {
