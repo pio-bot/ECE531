@@ -85,15 +85,11 @@ void do_temp_stuff(FILE *temperatureFile, FILE *heaterFile){
         // Turn the heater on 
         syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater on\n", currentTemp, targetTemp);
         snprintf(dataOn, 20,"ON : %d", (int)time(NULL));
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, dataOn);
 	    fputs(dataOn, heaterFile);
     } else {
         //turn the heater off
         syslog(LOG_INFO, "Current temp %d Target temp %d Turning heater off\n", currentTemp, targetTemp);
         snprintf(dataOff, 20,"OFF : %d", (int)time(NULL));
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, dataOff);
         fputs(dataOff, heaterFile);
 
     }
@@ -121,7 +117,7 @@ void _do_work(void){
     FILE *temperatureFile;
     FILE *heaterFile;
     int iteration = 0;
-    setup_curl();
+    
     while(1){
         syslog(LOG_INFO, "iteration: %d\n", iteration);
         do_temp_stuff(temperatureFile, heaterFile);
@@ -136,17 +132,23 @@ int main(int argc, char *argv[]){
     // Parse input
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--config_file") == 0 || strcmp(argv[i], "-c") == 0) {
-	        time1 = atoi(argv[i + 1]);
-            temp1 = atoi(argv[i + 2]);
-            time2 = atoi(argv[i + 3]);
-            temp2 = atoi(argv[i + 4]);
-            time3 = atoi(argv[i + 5]);
-            temp3 = atoi(argv[i + 6]);
+	        temp1 = atoi(argv[i + 1]);
+            temp2 = atoi(argv[i + 2]);
+            temp3 = atoi(argv[i + 3]);
+            time1 = atoi(argv[i + 4]);
+            time2 = atoi(argv[i + 5]);
+            time3 = atoi(argv[i + 6]);
+            char setpointData[100];
+            snprintf(setpointData, 100,"{\"temp1\":\"%d\", \"temp2\":\"%d\",\"temp3\":\"%d\", \"time1\":\"%d\", \"time2\":\"%d\",\"time\":\"%d\"}", temp1, temp2, temp3, time1, time2, time3);
+            setup_curl();
+            curl_easy_setopt(curl, CURLOPT_POST, 1L);
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, setpointData);
+
 	    } else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
 	        printf("Usage: %s [options]\n", argv[0]);
 	        printf("Options:\n");
 	        printf("  -c, --config_file    The config file containing the setpoint temperatures\n");
-            printf("                       The config file is entered as time1 temp1 time2 temp2 time3 temp3\n");
+            printf("                       The config file is entered as temp1 temp2 temp3 time1 time2 time3\n");
 	        printf("  -h, --help           Show help\n");
 	        return 0;
 	    } else {
