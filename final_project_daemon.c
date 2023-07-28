@@ -141,8 +141,11 @@ int main(int argc, char *argv[]){
             char setpointData[110];
             snprintf(setpointData, 110,"{\"temp1\":\"%d\", \"temp2\":\"%d\",\"temp3\":\"%d\", \"time1\":\"%d\", \"time2\":\"%d\",\"time3\":\"%d\"}", temp1, temp2, temp3, time1, time2, time3);
             setup_curl();
+            struct curl_slist *headers = NULL;
+            headers = curl_slist_append(headers, "Content-Type: application/json");
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, setpointData);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
             //Send the request
 	        res = curl_easy_perform(curl);
             if (res != CURLE_OK){
